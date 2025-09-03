@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4 Div Image Container</title>
+  <style>
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 250px;
+      height: 200px;
+      border: 2px solid #333;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .container:hover {
+      transform: scale(1.05); 
+    }
+  </style>
+</head>
+<body>
+
+  <div class="gallery">
+    <div class="container">
+      <img src="https://images.ctfassets.net/hrltx12pl8hq/28ECAQiPJZ78hxatLTa7Ts/2f695d869736ae3b0de3e56ceaca3958/free-nature-images.jpg?fit=fill&w=1200&h=630" alt="Image 1">
+    </div>
+    <div class="container">
+      <img src="https://images.unsplash.com/reserve/bOvf94dPRxWu0u3QsPjF_tree.jpg?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8bmF0dXJhbHxlbnwwfHwwfHx8MA%3D%3D" alt="Image 2">
+    </div>
+    <div class="container">
+      <img src="https://t4.ftcdn.net/jpg/02/07/01/99/240_F_207019997_b0NsUaexcVMMSheib1Tp8o9Qi08C8daZ.jpg" alt="Image 3">
+    </div>
+    <div class="container">
+      <img src="https://t4.ftcdn.net/jpg/05/25/01/09/240_F_525010960_Ki57oTYQpRoy378VVoVxJ8KpEzQD6mNd.jpg" alt="Image 4">
+    </div>
+  </div>
+
+</body>
+</html>

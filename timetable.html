@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Weekly Timetable</title>
+  <style>
+    :root{
+      --bg: #0b1020;
+      --card: #121831;
+      --ink: #eaf0ff;
+      --muted: #9fb1ff;
+      --grid: rgba(255,255,255,0.08);
+      --accent1: #6ee7b7; /* green */
+      --accent2: #93c5fd; /* blue */
+      --accent3: #fcd34d; /* amber */
+      --accent4: #fca5a5; /* red */
+      --accent5: #c4b5fd; /* purple */
+      --accent6: #f9a8d4; /* pink */
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: linear-gradient(180deg, var(--bg), #0c142c 60%);
+      color: var(--ink);
+      line-height: 1.5;
+      display: grid;
+      place-items: start center;
+      padding: 24px;
+    }
+
+    .wrap{
+      width: min(1100px, 100%);
+    }
+
+    .head{
+      display: grid; gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    h1{
+      margin: 0;
+      font-size: clamp(20px, 3vw, 32px);
+      letter-spacing: .3px;
+    }
+
+    .meta{
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border: 1px solid var(--grid);
+      border-radius: 16px;
+      box-shadow:
+        0 10px 24px rgba(0,0,0,.25),
+        inset 0 1px 0 rgba(255,255,255,.04);
+      overflow: clip;
+    }
+
+    table{
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: clamp(12px, 1.4vw, 16px);
+    }
+
+    caption{
+      caption-side: top;
+      text-align: left;
+      padding: 16px 16px 8px 16px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    thead th{
+      position: sticky; top: 0;
+      background: rgba(12,20,44,.9);
+      backdrop-filter: blur(6px);
+      z-index: 2;
+    }
+
+    th, td{
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--grid);
+      border-right: 1px solid var(--grid);
+      vertical-align: middle;
+      text-align: left;
+    }
+
+    th:first-child, td:first-child{ border-left: 1px solid var(--grid); }
+    thead th{ font-weight: 700; }
+
+    /* Time column */
+    .time{
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      width: 120px;
+      background: rgba(255,255,255,0.02);
+      position: sticky; left: 0; z-index: 1;
+    }
+
+    /* Subject pills */
+    .pill{
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--grid);
+      background: rgba(255,255,255,0.03);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .pill small{ opacity: .75; font-size: 12px; }
+
+    .g{ border-color: rgba(110,231,183,.35); box-shadow: 0 0 0 3px rgba(110,231,183,.08) inset; }
+    .b{ border-color: rgba(147,197,253,.35); box-shadow: 0 0 0 3px rgba(147,197,253,.08) inset; }
+    .y{ border-color: rgba(252,211,77,.35); box-shadow: 0 0 0 3px rgba(252,211,77,.08) inset; }
+    .r{ border-color: rgba(252,165,165,.35); box-shadow: 0 0 0 3px rgba(252,165,165,.08) inset; }
+    .p{ border-color: rgba(196,181,253,.35); box-shadow: 0 0 0 3px rgba(196,181,253,.08) inset; }
+    .pk{ border-color: rgba(249,168,212,.35); box-shadow: 0 0 0 3px rgba(249,168,212,.08) inset; }
+
+    /* Zebra rows */
+    tbody tr:nth-child(even) td{ background: rgba(255,255,255,0.02); }
+
+    /* Hover */
+    tbody td:hover{ background: rgba(255,255,255,0.04); }
+
+    /* Legend */
+    .legend{
+      display: flex; flex-wrap: wrap; gap: 8px 12px;
+      padding: 12px 16px; font-size: 13px; color: var(--muted);
+      border-top: 1px solid var(--grid);
+      background: rgba(0,0,0,0.15);
+    }
+    .dot{ width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: -1px; }
+    .dot.g{ background: var(--accent1); }
+    .dot.b{ background: var(--accent2); }
+    .dot.y{ background: var(--accent3); }
+    .dot.r{ background: var(--accent4); }
+    .dot.p{ background: var(--accent5); }
+    .dot.pk{ background: var(--accent6); }
+
+    /* Controls */
+    .controls{
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+      margin: 8px 0 16px 0;
+    }
+    .controls input[type="search"], .controls select{
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--grid);
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 8px 10px;
+      outline: none;
+    }
+
+    /* Responsive: stack to cards on very small screens */
+    @media (max-width: 720px){
+      thead{ display: none; }
+      table, tbody, tr, td, th{ display: block; width: 100%; }
+      tr{ border-top: 1px solid var(--grid); }
+      .time{ position: static; width: auto; background: transparent; }
+      td{ border-right: none; }
+      td[data-label]{ display: grid; grid-template-columns: 120px 1fr; gap: 8px; }
+      td[data-label]::before{ content: attr(data-label); color: var(--muted); }
+    }
+
+    /* Print (A4 landscape) */
+    @page { size: A4 landscape; margin: 12mm; }
+    @media print{
+      body{ background: white; color: #111; }
+      .card{ box-shadow: none; border-color: #bbb; }
+      thead th{ background: #f6f6f6; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .legend{ background: #fafafa; }
+      a, .controls{ display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head">
+      <h1>Weekly Timetable</h1>
+      <div class="meta">Session: 2025 • Location: Room 204 • Version: 1.0</div>
+      <div class="controls">
+        <input id="search" type="search" placeholder="Quick filter by subject/teacher…" aria-label="Filter timetable" />
+        <label for="week">Week:</label>
+        <select id="week">
+          <option>08 Sep – 14 Sep</option>
+          <option>15 Sep – 21 Sep</option>
+          <option>22 Sep – 28 Sep</option>
+        </select>
+        <a href="#" onclick="window.print(); return false;" class="pill" title="Print or save as PDF">🖨️ Print</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <table id="timetable" role="table" aria-label="Weekly timetable">
+        <caption>Example schedule (edit inline to customise)</caption>
+        <thead>
+          <tr>
+            <th class="time">Time</th>
+            <th>Monday</th>
+            <th>Tuesday</th>
+            <th>Wednesday</th>
+            <th>Thursday</th>
+            <th>Friday</th>
+            <th>Saturday</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="time">08:30 – 09:20</th>
+            <td data-label="Mon"><span class="pill g" title="Mathematics • Mr. Rao">Mathematics <small>Rao</small></span></td>
+            <td data-label="Tue"><span class="pill b" title="Physics • Ms. Singh">Physics <small>Singh</small></span></td>
+            <td data-label="Wed"><span class="pill y" title="Chemistry • Dr. Patel">Chemistry <small>Patel</small></span></td>
+            <td data-label="Thu"><span class="pill p" title="Biology • Ms. Das">Biology <small>Das</small></span></td>
+            <td data-label="Fri"><span class="pill pk" title="Computer • Mr. Khan">Computer <small>Khan</small></span></td>
+            <td data-label="Sat"><span class="pill r" title="Sports • Coach Vikram">Sports <small>Vikram</small></span></td>
+          </tr>
+          <tr>
+            <th class="time">09:20 – 10:10</th>
+            <td data-label="Mon"><span class="pill b" title="Physics • Ms. Singh">Physics <small>Singh</small></span></td>
+            <td data-label="Tue"><span class="pill g" title="Mathematics • Mr. Rao">Mathematics <small>Rao</small></span></td>
+            <td data-label="Wed"><span class="pill pk" title="Computer • Mr. Khan">Computer <small>Khan</small></span></td>
+            <td data-label="Thu"><span class="pill y" title="Chemistry • Dr. Patel">Chemistry <small>Patel</small></span></td>
+            <td data-label="Fri"><span class="pill p" title="Biology • Ms. Das">Biology <small>Das</small></span></td>
+            <td data-label="Sat"><span class="pill r" title="Sports • Coach Vikram">Sports <small>Vikram</small></span></td>
+          </tr>
+          <tr>
+            <th class="time">10:10 – 11:00</th>
+            <td data-label="Mon"><span class="pill p" title="Biology • Ms. Das">Biology <small>Das</small></span></td>
+            <td data-label="Tue"><span class="pill y" title="Chemistry • Dr. Patel">Chemistry <small>Patel</small></span></td>
+            <td data-label="Wed"><span class="pill g" title="Mathematics • Mr. Rao">Mathematics <small>Rao</small></span></td>
+            <td data-label="Thu"><span class="pill b" title="Physics • Ms. Singh">Physics <small>Singh</small></span></td>
+            <td data-label="Fri"><span class="pill pk" title="Computer • Mr. Khan">Computer <small>Khan</small></span></td>
+            <td data-label="Sat"><span class="pill r" title="Club • Debate">Club <small>Debate</small></span></td>
+          </tr>
+          <tr>
+            <th class="time">11:00 – 11:20</th>
+            <td data-label="Mon" colspan="6"><span class="pill y" title="Break">🍽️ Short Break</span></td>
+          </tr>
+          <tr>
+            <th class="time">11:20 – 12:10</th>
+            <td data-label="Mon"><span class="pill pk" title="Computer • Mr. Khan">Computer <small>Khan</small></span></td>
+            <td data-label="Tue"><span class="pill p" title="Biology • Ms. Das">Biology <small>Das</small></span></td>
+            <td data-label="Wed"><span class="pill b" title="Physics • Ms. Singh">Physics <small>Singh</small></span></td>
+            <td data-label="Thu"><span class="pill g" title="Mathematics • Mr. Rao">Mathematics <small>Rao</small></span></td>
+            <td data-label="Fri"><span class="pill y" title="Chemistry • Dr. Patel">Chemistry <small>Patel</small></span></td>
+            <td data-label="Sat"><span class="pill r" title="Activities • Arts">Activities <small>Arts</small></span></td>
+          </tr>
+          <tr>
+            <th class="time">12:10 – 13:00</th>
+            <td data-label="Mon"><span class="pill y" title="Chemistry • Dr. Patel">Chemistry <small>Patel</small></span></td>
+            <td data-label="Tue"><span class="pill pk" title="Computer • Mr. Khan">Computer <small>Khan</small></span></td>
+            <td data-label="Wed"><span class="pill p" title="Biology • Ms. Das">Biology <small>Das</small></span></td>
+            <td data-label="Thu"><span class="pill r" title="PE • Coach Vikram">PE <small>Vikram</small></span></td>
+            <td data-label="Fri"><span class="pill g" title="Mathematics • Mr. Rao">Mathematics <small>Rao</small></span></td>
+            <td data-label="Sat"><span class="pill r" title="Activities • Arts">Activities <small>Arts</small></span></td>
+          </tr>
+          <tr>
+            <th class="time">13:00 – 14:00</th>
+            <td data-label="Mon" colspan="6"><span class="pill g" title="Lunch Break">🥗 Lunch Break</span></td>
+          </tr>
+          <tr>
+            <th class="time">14:00 – 14:50</th>
+            <td data-label="Mon"><span class="pill r" title="Language • Hindi">Language <small>Hindi</small></span></td>
+            <td data-label="Tue"><span class="pill r" title="Language • English">Language <small>English</small></span></td>
+            <td data-label="Wed"><span class="pill r" title="Language • Hindi">Language <small>Hindi</small></span></td>
+            <td data-label="Thu"><span class="pill r" title="Language • English">Language <small>English</small></span></td>
+            <td data-label="Fri"><span class="pill r" title="Language • Hindi">Language <small>Hindi</small></span></td>
+            <td data-label="Sat"><span class="pill r" title="Community • Service">Community <small>Service</small></span></td>
+          </tr>
+          <tr>
+            <th class="time">14:50 – 15:40</th>
+            <td data-label="Mon"><span class="pill b" title="Physics • Lab">Physics <small>Lab</small></span></td>
+            <td data-label="Tue"><span class="pill y" title="Chemistry • Lab">Chemistry <small>Lab</small></span></td>
+            <td data-label="Wed"><span class="pill pk" title="Computer • Lab">Computer <small>Lab</small></span></td>
+            <td data-label="Thu"><span class="pill p" title="Biology • Lab">Biology <small>Lab</small></span></td>
+            <td data-label="Fri"><span class="pill g" title="Mathematics • Tutorial">Maths <small>Tutorial</small></span></td>
+            <td data-label="Sat"><span class="pill r" title="Games">Games</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="legend">
+        <span><i class="dot g"></i> Mathematics</span>
+        <span><i class="dot b"></i> Physics</span>
+        <span><i class="dot y"></i> Chemistry</span>
+        <span><i class="dot p"></i> Biology</span>
+        <span><i class="dot pk"></i> Computer</span>
+        <span><i class="dot r"></i> Languages/PE/Activities</span>
+      </div>
+    </div>
+
+    <p class="meta" style="margin-top:12px">Tip: Double‑click any subject text to edit. Use the filter to quickly find a teacher or subject. Use the Print button to export as PDF.</p>
+  </div>
+
+  <script>
+    // Quick inline editing for convenience
+    document.getElementById('timetable').addEventListener('dblclick', (e) => {
+      const el = e.target.closest('span');
+      if(!el) return;
+      const current = el.textContent.trim();
+      const next = prompt('Edit cell label:', current);
+      if(next !== null){ el.childNodes[0].nodeValue = next.replace(/\s+/g,' ').trim() + ' '; }
+    });
+
+    // Simple filter by text
+    const filter = document.getElementById('search');
+    filter.addEventListener('input', () => {
+      const q = filter.value.toLowerCase().trim();
+      const rows = [...document.querySelectorAll('#timetable tbody tr')];
+      rows.forEach(row => {
+        const cells = [...row.querySelectorAll('td .pill')];
+        const match = q === '' || cells.some(p => p.textContent.toLowerCase().includes(q));
+        row.style.display = match ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>
